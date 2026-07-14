@@ -44,7 +44,7 @@ exports.register = async (req, res) => {
 
             {
 
-                expiresIn: "7d"
+                expiresIn: "1d"
 
             }
 
@@ -135,7 +135,7 @@ exports.login = async (req, res) => {
 
             {
 
-                expiresIn: "7d"
+                expiresIn: "1d"
 
             }
 
@@ -173,4 +173,46 @@ exports.login = async (req, res) => {
 
     }
 
+};
+
+exports.getProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            balance: user.balance || 0
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+exports.rechargeWallet = async (req, res) => {
+    try {
+        const { userId, amount } = req.body;
+        if (!userId || !amount || amount <= 0) {
+            return res.status(400).json({ message: "Invalid parameters" });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        user.balance = (user.balance || 0) + Number(amount);
+        await user.save();
+
+        res.json({
+            message: "Recharge successful",
+            balance: user.balance
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };

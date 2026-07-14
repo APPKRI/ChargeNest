@@ -22,6 +22,11 @@ const userSchema = new mongoose.Schema({
         type:String,
         enum:["driver","host"],
         default:"driver"
+    },
+
+    balance:{
+        type:Number,
+        default:0
     }
 
 },{
